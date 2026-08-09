@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint-and-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 nbformat nbclient
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Lint Python code (src/)
+        run: |
+          flake8 src --max-line-length=120 --extend-ignore=E203,W503 || true
+
+      - name: Check notebooks are valid JSON / not corrupted
+        run: |
+          python - <<'PY'
+          import nbformat, glob, sys
+          failed = False
+          for path in glob.glob("notebooks/**/*.ipynb", recursive=True):
+              try:
+                  nbformat.read(path, as_version=4)
+                  print(f"OK: {path}")
+              except Exception as e:
+                  print(f"FAILED: {path} -> {e}")
+                  failed = True
+          if failed:
+              sys.exit(1)
+          PY

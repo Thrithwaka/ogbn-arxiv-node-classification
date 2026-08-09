@@ -1,0 +1,10 @@
+# Each line maps a path to whoever should be auto-requested for review.
+
+/notebooks/01_tensor_fundamentals.ipynb   @AadhilAslam88
+/notebooks/02_graph_analysis.ipynb        @ThilaniDilmani
+/notebooks/03_data_preparation.ipynb      @ThilaniDilmani
+/src/data/                                @ThilaniDilmani
+/src/models/                              @Thrithwaka
+/src/utils/                               @NavodyaRupasinghe2003 @Kaveesha23dil
+/dashboard/                               @Kaveesha23dil
+/reports/                                 @NavodyaRupasinghe2003 @Kaveesha23dil
