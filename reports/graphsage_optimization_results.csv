@@ -1,0 +1,4 @@
+configuration,learning_rate,hidden_channels,dropout,weight_decay,best_epoch,best_validation_loss,best_validation_accuracy
+Config 2,0.005,256,0.5,0.0005,100,0.9067772030830383,0.7194536328315735
+Config 3,0.01,256,0.3,0.0001,97,0.9031292796134949,0.719118058681488
+Config 1,0.01,256,0.5,0.0,96,0.9025688171386719,0.7183797955513
