@@ -1,0 +1,17 @@
+{
+  "gcn": {
+    "class": "GCN",
+    "hidden_channels": 256,
+    "dropout": 0.5,
+    "in_channels": 128,
+    "out_channels": 40
+  },
+  "graphsage": {
+    "class": "GraphSAGE",
+    "hidden_channels": 256,
+    "dropout": 0.5,
+    "in_channels": 128,
+    "out_channels": 40
+  },
+  "seed": 42
+}
