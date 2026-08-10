@@ -1,0 +1,4 @@
+configuration,learning_rate,hidden_channels,dropout,weight_decay,heads,best_epoch,best_validation_loss,best_validation_accuracy
+GAT Config 3,0.01,64,0.5,0.0001,4,99,1.0081905126571655,0.6921708583831787
+GAT Config 2,0.005,128,0.5,0.0005,2,100,1.0433942079544067,0.6862981915473938
+GAT Config 1,0.005,64,0.6,0.0005,4,100,1.1092392206192017,0.6740829944610596
