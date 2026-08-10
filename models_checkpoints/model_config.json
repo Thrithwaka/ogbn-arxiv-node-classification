@@ -13,5 +13,16 @@
     "in_channels": 128,
     "out_channels": 40
   },
-  "seed": 42
+  "gat": {
+    "class": "GAT",
+    "hidden_channels": 256,
+    "dropout": 0.5,
+    "in_channels": 128,
+    "out_channels": 40,
+    "heads": 4
+  },
+  "seed": 42,
+  "model_module": "src/models/gnn_models.py",
+  "bonus_category": "Advanced GNN Architectures (GAT added as 3rd model)",
+  "usage_note": "Import architectures with: from models.gnn_models import GCN, GraphSAGE, GAT. Then: model = GCN(**config['gcn'])"
 }
