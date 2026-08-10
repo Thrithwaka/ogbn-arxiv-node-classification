@@ -1,0 +1,41 @@
+{
+  "models": {
+    "gcn": {
+      "class": "GCN",
+      "in_channels": 128,
+      "hidden_channels": 256,
+      "out_channels": 40,
+      "dropout": 0.3
+    },
+    "graphsage": {
+      "class": "GraphSAGE",
+      "in_channels": 128,
+      "hidden_channels": 256,
+      "out_channels": 40,
+      "dropout": 0.3
+    },
+    "gat": {
+      "class": "GAT",
+      "in_channels": 128,
+      "hidden_channels": 64,
+      "out_channels": 40,
+      "dropout": 0.5,
+      "heads": 4
+    }
+  },
+  "optimization": {
+    "gcn": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.0001
+    },
+    "graphsage": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.0001
+    },
+    "gat": {
+      "learning_rate": 0.01,
+      "weight_decay": 0.0001
+    }
+  },
+  "seed": 42
+}
