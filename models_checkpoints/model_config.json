@@ -15,7 +15,7 @@
   },
   "gat": {
     "class": "GAT",
-    "hidden_channels": 256,
+    "hidden_channels": 64,
     "dropout": 0.5,
     "in_channels": 128,
     "out_channels": 40,
