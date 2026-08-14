@@ -56,6 +56,21 @@ class GCN(nn.Module):
         x = self.conv3(x, edge_index)  # raw logits, softmax applied in loss
         return x
 
+    def get_embeddings(self, x: torch.Tensor, edge_index: torch.Tensor) -> torch.Tensor:
+        """
+        Returns the hidden representation just before the final
+        classification layer — used for embedding visualization
+        (Task 07, Option B) rather than raw prediction logits.
+        """
+        x = self.conv1(x, edge_index)
+        x = self.bn1(x)
+        x = F.relu(x)
+
+        x = self.conv2(x, edge_index)
+        x = self.bn2(x)
+        x = F.relu(x)
+        return x
+
 
 class GraphSAGE(nn.Module):
     """
@@ -105,6 +120,17 @@ class GraphSAGE(nn.Module):
         x = F.dropout(x, p=self.dropout, training=self.training)
 
         x = self.conv3(x, edge_index)
+        return x
+
+    def get_embeddings(self, x: torch.Tensor, edge_index: torch.Tensor) -> torch.Tensor:
+        """Hidden representation before the final classification layer."""
+        x = self.conv1(x, edge_index)
+        x = self.bn1(x)
+        x = F.relu(x)
+
+        x = self.conv2(x, edge_index)
+        x = self.bn2(x)
+        x = F.relu(x)
         return x
 
 
@@ -169,6 +195,14 @@ class GAT(nn.Module):
         x = self.conv2(x, edge_index)
         return x
 
+    def get_embeddings(self, x: torch.Tensor, edge_index: torch.Tensor) -> torch.Tensor:
+        """Hidden representation (post-attention, pre-output layer)."""
+        x = F.dropout(x, p=self.dropout, training=self.training)
+        x = self.conv1(x, edge_index)
+        x = self.bn1(x)
+        x = F.elu(x)
+        return x
+
     def forward_with_attention(self, x: torch.Tensor, edge_index: torch.Tensor):
         """
         Same forward pass, but also returns attention weights from
@@ -192,7 +226,8 @@ class GAT(nn.Module):
         return x, (edge_index_1, alpha_1), (edge_index_2, alpha_2)
 
 
-
+# Registry so config-driven code can instantiate a model by name,
+# e.g. MODEL_REGISTRY[config["class"]](**config_without_class_key)
 MODEL_REGISTRY = {
     "GCN": GCN,
     "GraphSAGE": GraphSAGE,
