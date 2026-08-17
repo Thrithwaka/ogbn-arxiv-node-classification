@@ -201,6 +201,51 @@ def badge(text: str, kind: str = "required"):
     st.markdown(f'<span class="badge badge-{kind}">{text}</span>', unsafe_allow_html=True)
 
 
+def show_image(path: str):
+    """Version-safe image display — older Streamlit builds don't
+    support the use_container_width argument."""
+    try:
+        st.image(path, use_container_width=True)
+    except TypeError:
+        st.image(path, use_column_width=True)
+
+
+def style_fig(fig):
+    """
+    Applies consistent, explicit light-theme styling to every Plotly
+    chart in the dashboard. Plotly can otherwise pick a dark-mode-
+    oriented default template that renders axis labels and titles in
+    very light gray — nearly invisible against this dashboard's white
+    background — so every color here is set explicitly rather than
+    left to Plotly's auto-detection.
+    """
+    fig.update_layout(
+        plot_bgcolor=PAPER,
+        paper_bgcolor=PAPER,
+        font=dict(color=INK, family="Inter, -apple-system, sans-serif", size=13),
+        legend=dict(font=dict(color=INK)),
+        title=dict(font=dict(color=INK)),
+        margin=dict(t=30, b=40, l=10, r=10),
+    )
+    fig.update_xaxes(
+        color=INK,
+        title_font=dict(color=INK),
+        tickfont=dict(color=INK_SOFT),
+        gridcolor=LINE,
+        linecolor=LINE,
+        zerolinecolor=LINE,
+    )
+    fig.update_yaxes(
+        color=INK,
+        title_font=dict(color=INK),
+        tickfont=dict(color=INK_SOFT),
+        gridcolor=LINE,
+        linecolor=LINE,
+        zerolinecolor=LINE,
+    )
+    return fig
+
+
 # ============================================================
 # DATA / MODEL LOADING (cached, defensive — never crash the UI)
 # ============================================================
@@ -396,35 +441,35 @@ def render_overview():
     st.markdown("### How to read this dashboard")
     col_a, col_b, col_c = st.columns(3)
     with col_a:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown("**◆ Graph Statistics**")
         st.markdown(
-            '<p class="subtle">Structural properties of the citation network itself — '
-            "how densely connected it is, how citation counts are distributed, "
-            "and whether papers form one connected community or many isolated ones.</p>",
+            """<div class="card">
+            <b>◆ Graph Statistics</b>
+            <p class="subtle">Structural properties of the citation network itself —
+            how densely connected it is, how citation counts are distributed,
+            and whether papers form one connected community or many isolated ones.</p>
+            </div>""",
             unsafe_allow_html=True,
         )
-        st.markdown("</div>", unsafe_allow_html=True)
     with col_b:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown("**◆ Model Performance**")
         st.markdown(
-            '<p class="subtle">How accurately each of the three models classifies '
-            "papers it has never seen before, and where each model's strengths "
-            "and weaknesses lie.</p>",
+            """<div class="card">
+            <b>◆ Model Performance</b>
+            <p class="subtle">How accurately each of the three models classifies
+            papers it has never seen before, and where each model's strengths
+            and weaknesses lie.</p>
+            </div>""",
             unsafe_allow_html=True,
         )
-        st.markdown("</div>", unsafe_allow_html=True)
     with col_c:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown("**◆ Classify a Paper**")
         st.markdown(
-            '<p class="subtle">Pick any real paper from the dataset, choose a '
-            "model, and see its prediction with a plain-language explanation "
-            "of how confident it is and why.</p>",
+            """<div class="card">
+            <b>◆ Classify a Paper</b>
+            <p class="subtle">Pick any real paper from the dataset, choose a
+            model, and see its prediction with a plain-language explanation
+            of how confident it is and why.</p>
+            </div>""",
             unsafe_allow_html=True,
         )
-        st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("### The three models, at a glance")
     m1, m2, m3 = st.columns(3)
@@ -505,7 +550,8 @@ def render_graph_statistics():
         labels={"x": "Number of citation links", "y": "Number of papers"},
         color_discrete_sequence=[PURPLE],
     )
-    fig.update_layout(plot_bgcolor=PAPER, paper_bgcolor=PAPER, bargap=0.05)
+    fig.update_layout(bargap=0.05)
+    style_fig(fig)
     st.plotly_chart(fig, use_container_width=True)
     explain(
         "Most papers have very few citation links, while a small number are cited "
@@ -523,7 +569,7 @@ def render_graph_statistics():
         cat_df, x="Papers", y="Category", orientation="h",
         color_discrete_sequence=[GREEN],
     )
-    fig2.update_layout(plot_bgcolor=PAPER, paper_bgcolor=PAPER)
+    style_fig(fig2)
     st.plotly_chart(fig2, use_container_width=True)
     explain(
         "Category sizes are uneven — some subject areas (like Machine Learning) have "
@@ -582,9 +628,11 @@ def render_model_performance():
             marker_color=MODEL_COLORS.get(model_name, INK),
         ))
     fig.update_layout(
-        barmode="group", plot_bgcolor=PAPER, paper_bgcolor=PAPER,
-        yaxis_tickformat=".0%", legend_title_text="Model",
+        barmode="group",
+        yaxis_tickformat=".0%",
+        legend_title_text="Model",
     )
+    style_fig(fig)
     st.plotly_chart(fig, use_container_width=True)
 
     best_acc_model = test_df["Accuracy"].idxmax()
@@ -716,7 +764,8 @@ def render_prediction():
             top5_df, x="Probability", y="Category", orientation="h",
             color_discrete_sequence=[color],
         )
-        fig.update_layout(plot_bgcolor=PAPER, paper_bgcolor=PAPER, xaxis_tickformat=".0%")
+        fig.update_layout(xaxis_tickformat=".0%")
+        style_fig(fig)
         st.plotly_chart(fig, use_container_width=True)
 
 
@@ -734,7 +783,7 @@ def render_embeddings():
 
     img_path = PROJECT_ROOT / "reports" / "embedding_visualization.png"
     if img_path.exists():
-        st.image(str(img_path), use_container_width=True)
+        show_image(str(img_path))
         explain(
             "Each column is one model's learned representation, reduced to 2 dimensions "
             "using <b>PCA</b> (top row, fast and linear) and <b>t-SNE</b> (bottom row, "
@@ -766,7 +815,7 @@ def render_explainability():
     with tab1:
         img_path = PROJECT_ROOT / "reports" / "gat_attention_weights.png"
         if img_path.exists():
-            st.image(str(img_path), use_container_width=True)
+            show_image(str(img_path))
             explain(
                 "GAT assigns a learned <b>attention weight</b> to every citation link. "
                 "This chart shows the most heavily-weighted neighbors for one example "
@@ -779,7 +828,7 @@ def render_explainability():
     with tab2:
         img_path = PROJECT_ROOT / "reports" / "feature_importance.png"
         if img_path.exists():
-            st.image(str(img_path), use_container_width=True)
+            show_image(str(img_path))
             explain(
                 "<b>Bonus technique.</b> Each input feature is temporarily zeroed out, "
                 "and the drop in the model's prediction confidence is measured. Features "
@@ -791,7 +840,7 @@ def render_explainability():
     with tab3:
         img_path = PROJECT_ROOT / "reports" / "neighborhood_influence.png"
         if img_path.exists():
-            st.image(str(img_path), use_container_width=True)
+            show_image(str(img_path))
             explain(
                 "<b>Bonus technique.</b> Compares a paper's prediction with and without "
                 "its citation links. A large difference means the model relies heavily on "
